@@ -1,0 +1,70 @@
+{
+  "version_contrato": 1,
+  "departamento": {
+    "codigo": "fabrica-de-agentes",
+    "nombre": "Fábrica de Agentes",
+    "repositorio": "CEO-QUANTUMHIVE/FABRICA-DE-AGENTES",
+    "prefijo_rama": "quantumcore/"
+  },
+  "ceo": {
+    "rol": "orquestador_departamental",
+    "autoridad": "solo_departamento",
+    "escala_a": "dominus",
+    "implementa_directamente": false
+  },
+  "plano_local": {
+    "memoria_proyectada": "MEMORIA.md",
+    "grafo": "graphify-out",
+    "base": "base_departamental",
+    "tablas_requeridas": [
+      "sesiones",
+      "planes",
+      "trabajos_internos",
+      "dependencias_trabajo",
+      "entregas",
+      "memorias",
+      "decisiones",
+      "hechos_operativos",
+      "ejecuciones_proceso",
+      "ingestas",
+      "informes",
+      "eventos_salida",
+      "eventos_entrada"
+    ]
+  },
+  "enrutamiento": {
+    "estrategia": "capacidad_costo_salud",
+    "pool_elastico": true,
+    "minimo_workers": 0,
+    "maximo_workers": null,
+    "proveedores_son_workers_reemplazables": true,
+    "tipos_trabajo": [
+      "liviano",
+      "operacion",
+      "pesado",
+      "pruebas"
+    ]
+  },
+  "informes": {
+    "hechos_controlados": [
+      "cliente",
+      "costo",
+      "decision",
+      "despliegue",
+      "incidente",
+      "ingesta",
+      "proceso",
+      "seguridad",
+      "trabajo"
+    ],
+    "detalle_permanece_local": true,
+    "elevar": [
+      "bloqueos",
+      "riesgos",
+      "decisiones_interdepartamentales",
+      "hitos_verificados",
+      "incidentes_relevantes",
+      "metricas_agregadas"
+    ]
+  }
+}
