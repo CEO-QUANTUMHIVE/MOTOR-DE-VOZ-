@@ -1,0 +1,939 @@
+/* Widget embebible del orbe.
+   PORT FIEL de QUANTUM-ASISTENTE- (apps/desktop/src/styles/base.css y
+   apps/desktop/src/orbe/orbe.css, rama agent/navegador-integrado).
+   Mismas clases, mismas animaciones, misma paleta negro-y-oro.
+
+   Tres diferencias, todas a proposito:
+   1. No hay nada de vision/pantallas: en una landing no aplica.
+   2. La capa `orbe__vida` (aros de energia + chispas), que alla solo
+      aparecia mirando la pantalla, aca esta SIEMPRE que el orbe este
+      colapsado: es lo que invita a tocarlo.
+   3. El panel abierto lleva borde dorado con brillo, no gris: sin eso se
+      pierde contra el fondo de la landing del cliente. */
+
+/* --- base.css, portado verbatim ------------------------------------------ */
+
+:root {
+  --qh-black: #0b0b0d;
+  --qh-black-soft: #141417;
+  --qh-line: #26262b;
+  --qh-gold: #d4af37;
+  --qh-gold-dim: #8a7328;
+  --qh-text: #ececef;
+  --qh-text-dim: #9a9aa2;
+  --qh-red: #d9534f;
+  --qh-green: #4f9d69;
+
+  --qh-radius: 10px;
+  --qh-font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --qh-mono: 'Cascadia Mono', 'Consolas', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* `hidden` lo pisa cualquier `display` de autor — y `.orbe__voces` es
+   `display: grid`, asi que el menu quedaba visible siempre y el toggle no
+   hacia nada. Esta regla le devuelve el poder al atributo. */
+[hidden] {
+  display: none !important;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: var(--qh-font);
+  color: var(--qh-text);
+  background: transparent;
+  overflow: hidden;
+}
+
+button {
+  font-family: inherit;
+  color: inherit;
+  cursor: pointer;
+  border: 1px solid var(--qh-line);
+  background: var(--qh-black-soft);
+  border-radius: var(--qh-radius);
+  padding: 6px 12px;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--qh-gold-dim);
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* --- orbe.css, portado ---------------------------------------------------- */
+
+.orbe {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+}
+
+/* Colapsado: sólo la esfera, abajo a la derecha y sin fondo. */
+.orbe:not(.orbe--abierto) {
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.orbe--abierto {
+  background: rgba(11, 11, 13, 0.96);
+  /* Borde dorado metalico animado: el gris del original se perdia contra
+     el fondo de la landing, que no controlamos. El brillo recorre el
+     marco como un reflejo sobre metal — un conic-gradient girando debajo,
+     recortado a los 1.5px del borde con una mascara. Va en ::before y no
+     en `border` porque un borde CSS no admite gradientes animados. */
+  border: none;
+  border-radius: 14px;
+  padding: 10px;
+  position: relative;
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.55),
+    0 0 24px rgba(212, 175, 55, 0.35);
+}
+
+/* El angulo se registra como propiedad animable. Sin esto no se puede
+   interpolar un conic-gradient, y la unica salida seria rotar el elemento
+   con `transform` — que hace girar la caja entera en vez del reflejo.
+   Donde @property no exista, el borde queda dorado fijo: se degrada bien. */
+@property --qh-angulo {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.orbe--abierto::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  /* Casi todo el marco es oro parejo; el reflejo claro ocupa un tramo
+     corto y lo recorre despacio. Eso es lo que lee como metal. */
+  background: conic-gradient(
+    from var(--qh-angulo),
+    #8a7328 0%,
+    #8a7328 14%,
+    #d4af37 20%,
+    #f3e0a8 25%,
+    #d4af37 30%,
+    #8a7328 38%,
+    #8a7328 64%,
+    #d4af37 70%,
+    #f3e0a8 75%,
+    #d4af37 80%,
+    #8a7328 88%,
+    #8a7328 100%
+  );
+  /* La mascara deja ver el gradiente solo en el anillo del padding: es lo
+     que lo convierte en "borde" en vez de un fondo. */
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: qh-brillo-borde 9s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes qh-brillo-borde {
+  to {
+    --qh-angulo: 360deg;
+  }
+}
+
+/* --- cabecera ------------------------------------------------------------ */
+
+.orbe__cabecera {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.orbe:not(.orbe--abierto) .orbe__cabecera {
+  flex-direction: column;
+  gap: 6px;
+}
+
+.orbe__titulo {
+  flex: 1;
+  font-family: var(--qh-mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  color: var(--qh-text);
+  user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.orbe__esfera {
+  width: 150px;
+  height: 150px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  display: grid;
+  place-items: center;
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.orbe--abierto .orbe__esfera {
+  width: 48px;
+  height: 48px;
+}
+
+.orbe__marca {
+  font-family: var(--qh-mono);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -1px;
+  color: var(--qh-gold-dim);
+  user-select: none;
+  transition: color 200ms ease;
+}
+
+.orbe--abierto .orbe__marca {
+  font-size: 12px;
+}
+
+.orbe__logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.85;
+  filter: drop-shadow(0 0 0 transparent);
+  transition: filter 200ms ease, opacity 200ms ease, transform 200ms ease;
+  /* Adelante del halo: la capa de vida va en el DOM despues del <img>, y
+     sin esto le pintaba encima y lo tapaba. */
+  position: relative;
+  z-index: 1;
+}
+
+/* El avatar es una segunda piel del mismo widget. El modo orbe sigue
+   siendo el predeterminado y conserva intactas sus animaciones. */
+.orbe__avatar {
+  display: none;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  border-radius: 22px;
+  background: #0b0b0d;
+  pointer-events: none;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5), 0 0 20px rgba(212, 175, 55, 0.22);
+}
+
+.orbe--avatar .orbe__logo,
+.orbe--avatar .orbe__vida {
+  display: none;
+}
+
+.orbe--avatar .orbe__avatar {
+  display: block;
+}
+
+.orbe--avatar:not(.orbe--abierto) .orbe__esfera {
+  width: 220px;
+  height: 320px;
+  order: 2;
+}
+
+.orbe--avatar.orbe--abierto .orbe__esfera {
+  width: 64px;
+  height: 88px;
+}
+
+.orbe--avatar:not(.orbe--abierto) .orbe__invitacion {
+  order: 1;
+}
+
+/* Cartel de invitacion: solo con el orbe colapsado. No esta en el
+   original (alla el orbe vive en el escritorio, no hay que explicarlo);
+   aca es la unica pista de que se puede tocar. */
+.orbe__invitacion {
+  font-family: var(--qh-mono);
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  color: var(--qh-gold);
+  background: rgba(11, 11, 13, 0.92);
+  border: 1px solid var(--qh-gold-dim);
+  border-radius: 999px;
+  padding: 5px 12px;
+  white-space: nowrap;
+  user-select: none;
+  pointer-events: auto;
+  animation: qh-latido-cartel 2.8s ease-in-out infinite;
+  cursor: pointer;
+}
+
+/* Colapsado se ve el orbe y el cartel; abierto, todo lo demas. */
+.orbe--abierto .orbe__invitacion,
+.orbe:not(.orbe--abierto) .orbe__titulo,
+.orbe:not(.orbe--abierto) .orbe__acciones,
+.orbe:not(.orbe--abierto) .orbe__cuerpo {
+  display: none;
+}
+
+.orbe__cuerpo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+@keyframes qh-latido-cartel {
+  0%, 100% { opacity: 0.75; }
+  50% { opacity: 1; }
+}
+
+/* Un estado por cada cosa que puede estar pasando. Sin esto, el orbe es un
+   logo mudo y no se sabe si te escucha o si se cayó. */
+
+.orbe[data-estado='lista'] .orbe__marca,
+.orbe[data-estado='escuchando'] .orbe__marca,
+.orbe[data-estado='hablando'] .orbe__marca {
+  color: var(--qh-gold);
+}
+
+.orbe[data-estado='lista'] .orbe__logo,
+.orbe[data-estado='escuchando'] .orbe__logo,
+.orbe[data-estado='hablando'] .orbe__logo {
+  opacity: 1;
+  filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.65));
+}
+
+.orbe[data-estado='escuchando'] .orbe__logo {
+  animation: qh-latido 1.4s ease-in-out infinite;
+}
+
+.orbe[data-estado='hablando'] .orbe__logo {
+  animation: qh-pulso 780ms ease-in-out infinite;
+}
+
+.orbe[data-estado='conectando'] .orbe__logo {
+  animation: qh-giro-suave 1.6s ease-in-out infinite;
+}
+
+.orbe[data-estado='dormido'] .orbe__logo {
+  opacity: 0.55;
+}
+
+.orbe[data-estado='error'] .orbe__marca,
+.orbe[data-estado='frenado'] .orbe__marca {
+  color: var(--qh-red);
+}
+.orbe[data-estado='error'] .orbe__logo,
+.orbe[data-estado='frenado'] .orbe__logo {
+  opacity: 1;
+  filter: drop-shadow(0 0 10px rgba(217, 83, 79, 0.6));
+}
+
+@keyframes qh-latido {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+@keyframes qh-pulso {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+@keyframes qh-giro-suave {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* --- viva: el halo que respira e irradia -----------------------------------
+   Capa aparte del logo, así conviven con el brillo dorado de hablar/escuchar
+   en vez de pelear por el mismo `filter`. Es la única vez que se sale de la
+   paleta negro-y-oro: acá sí, a propósito, para que se note que respira. */
+
+.orbe__esfera {
+  --qh-radio-vida: 78px;
+}
+
+.orbe--abierto .orbe__esfera {
+  --qh-radio-vida: 24px;
+}
+
+.orbe__vida {
+  position: absolute;
+  inset: -18px;
+  pointer-events: none;
+  /* Detras del logo, no encima. */
+  z-index: 0;
+}
+
+.orbe--abierto .orbe__vida {
+  inset: -8px;
+}
+
+.orbe__vida-aro {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+/* Ondas: cada una nace pegada al borde del logo y se expande hacia
+   afuera desvaneciendose. Con tres escalonadas la emision se ve continua
+   — es energia saliendo, no un anillo fijo titilando. */
+.orbe__onda {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(79, 220, 150, 0) 40%,
+    rgba(120, 235, 200, 0.5) 52%,
+    rgba(79, 220, 150, 0.16) 62%,
+    rgba(79, 220, 150, 0) 72%
+  );
+  opacity: 0;
+  animation: qh-irradiar 2.7s ease-out infinite;
+  animation-delay: calc(var(--i) * 0.9s);
+}
+
+@keyframes qh-irradiar {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.85;
+  }
+  100% {
+    /* No pasarse de 1.35: la onda tiene que entrar entera adentro del
+       iframe, que mide lo justo para no tapar la pagina del cliente. Con
+       1.45 se recortaba contra el borde y se veia un circulo cortado. */
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+/* El resplandor de donde sale todo: pegado al borde del logo, girando
+   despacio. No se expande — es la fuente, no la onda. */
+.orbe__vida-aro--energia {
+  background: conic-gradient(
+    from 0deg,
+    rgba(151, 92, 255, 0.45),
+    rgba(64, 220, 220, 0.45),
+    rgba(151, 92, 255, 0.45)
+  );
+  filter: blur(9px);
+  opacity: 0.5;
+  -webkit-mask: radial-gradient(circle, transparent 38%, #000 48%, transparent 62%);
+  mask: radial-gradient(circle, transparent 38%, #000 48%, transparent 62%);
+  animation: qh-girar-aro 5s linear infinite;
+}
+
+.orbe__chispa {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  margin: -2px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #d3fff0 0%, rgba(120, 255, 210, 0) 70%);
+  opacity: 0;
+  animation: qh-chispa 2.4s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.32s);
+}
+
+@keyframes qh-girar-aro {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes qh-chispa {
+  0% {
+    opacity: 0;
+    transform: rotate(calc(var(--i) * 60deg)) translateY(calc(var(--qh-radio-vida) * -0.7));
+  }
+  20% {
+    opacity: 1;
+    transform: rotate(calc(var(--i) * 60deg)) translateY(calc(var(--qh-radio-vida) * -1));
+  }
+  55% {
+    opacity: 0;
+    transform: rotate(calc(var(--i) * 60deg)) translateY(calc(var(--qh-radio-vida) * -1.3));
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* --- acciones ------------------------------------------------------------ */
+
+.orbe__acciones {
+  display: flex;
+  gap: 5px;
+}
+
+.orbe__boton {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  font-size: 13px;
+  line-height: 1;
+  border-radius: 8px;
+  opacity: 0.55;
+}
+
+.orbe__boton[data-on='true'] {
+  opacity: 1;
+  border-color: var(--qh-gold);
+  color: var(--qh-gold);
+}
+
+.orbe__boton--freno[data-on='true'],
+.orbe__boton--freno:hover {
+  border-color: var(--qh-red);
+  color: var(--qh-red);
+  opacity: 1;
+}
+
+/* Micrófono: el patrón de punto rojo titilando, como cualquier grabador. */
+.orbe__mic {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  font-size: 11px;
+  border-radius: 8px;
+  color: var(--qh-text-dim);
+}
+
+.orbe__mic-punto {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--qh-red);
+  opacity: 0.35;
+  flex: 0 0 auto;
+}
+
+.orbe__mic[data-on='true'] {
+  border-color: var(--qh-red);
+  color: var(--qh-text);
+}
+
+.orbe__mic[data-on='true'] .orbe__mic-punto {
+  opacity: 1;
+  box-shadow: 0 0 6px 1px rgba(217, 83, 79, 0.7);
+  animation: qh-parpadeo 1s steps(2, jump-none) infinite;
+}
+
+@keyframes qh-parpadeo {
+  50% {
+    opacity: 0.25;
+    box-shadow: none;
+  }
+}
+
+/* Voces: nombres para elegir y, al tocarlos, escuchar esa voz al toque. */
+.orbe__voces {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+/* Titulo de cada grupo. La variedad de voces es argumento de venta: sin
+   separar por genero, ocho nombres sueltos no se leen como variedad. */
+.orbe__voces-grupo {
+  margin: 2px 0 0;
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--qh-text-dim);
+}
+
+.orbe__voces-grilla {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+}
+
+/* Lleva a la fabrica de voces: el que llego hasta aca probando voces es
+   justo el que puede querer la suya. */
+.orbe__clonar {
+  display: block;
+  margin-top: 4px;
+  padding: 7px 8px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--qh-gold);
+  border: 1px dashed var(--qh-gold-dim);
+  border-radius: 8px;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+
+.orbe__clonar:hover {
+  background: #1d1a12;
+  border-color: var(--qh-gold);
+}
+
+.orbe__voz-chip {
+  padding: 6px 2px;
+  background: var(--qh-black-soft);
+  color: var(--qh-text-dim);
+  border: 1px solid var(--qh-line);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 11px;
+  transition: border-color 150ms ease, color 150ms ease, background 150ms ease;
+}
+
+.orbe__voz-chip:hover:not(:disabled) {
+  border-color: var(--qh-gold-dim);
+  color: var(--qh-text);
+}
+
+.orbe__voz-chip[data-activa='true'] {
+  border-color: var(--qh-gold);
+  background: #1d1a12;
+  color: var(--qh-gold);
+}
+
+.orbe__voz-chip:disabled {
+  opacity: 0.5;
+}
+
+/* --- cuerpo -------------------------------------------------------------- */
+
+/* Resumen compacto: mismo patron que el selector de pantallas del original,
+   reusado para las voces. */
+/* Dorado y con un latido suave, no gris: si no se ve, nadie descubre que
+   hay voces para elegir — y esa variedad es medio argumento de venta. */
+.orbe__fuentes-resumen {
+  flex: 0 0 auto;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: linear-gradient(100deg, #1d1a12, #15130d);
+  color: var(--qh-gold);
+  font-weight: 600;
+  border: 1px solid var(--qh-gold-dim);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+  animation: qh-llamar 2.6s ease-in-out infinite;
+}
+
+.orbe__fuentes-resumen:hover {
+  border-color: var(--qh-gold);
+  box-shadow: 0 0 14px rgba(212, 175, 55, 0.35);
+}
+
+/* Se apaga apenas lo abren: ya cumplio su trabajo de llamar la atencion. */
+.orbe__fuentes-resumen[aria-expanded='true'] {
+  animation: none;
+}
+
+@keyframes qh-llamar {
+  0%,
+  100% {
+    box-shadow: 0 0 0 rgba(212, 175, 55, 0);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
+  }
+}
+
+.orbe__fuentes-resumen-texto {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.orbe__fuentes-resumen-flecha {
+  color: var(--qh-text-dim);
+  font-size: 10px;
+}
+
+/* Motores: los tres planes comerciales. No existe en el original — alla
+   hay un solo motor. */
+.orbe__motores {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+}
+
+.orbe__motor {
+  padding: 6px 2px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 8px;
+  color: var(--qh-text-dim);
+}
+
+.orbe__motor[aria-checked='true'] {
+  border-color: var(--qh-gold);
+  background: #1d1a12;
+  color: var(--qh-gold);
+}
+
+.orbe__motor small {
+  display: block;
+  font-size: 8.5px;
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+.orbe__aviso {
+  flex: 0 0 auto;
+  background: #2a1414;
+  border: 1px solid var(--qh-red);
+  border-radius: 8px;
+  padding: 7px 9px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: #f0c7c5;
+  cursor: pointer;
+}
+
+.orbe__registro {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding-right: 2px;
+}
+
+.orbe__vacio {
+  margin: auto 0;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--qh-text-dim);
+  padding: 0 10px;
+}
+
+.turno {
+  font-size: 12.5px;
+  line-height: 1.5;
+  padding: 7px 10px;
+  border-radius: 9px;
+  word-break: break-word;
+  max-width: 92%;
+}
+
+.turno[data-quien='yo'] {
+  align-self: flex-end;
+  background: #1d1a12;
+  border: 1px solid var(--qh-gold-dim);
+}
+
+.turno[data-quien='copiloto'] {
+  align-self: flex-start;
+  background: var(--qh-black-soft);
+  border: 1px solid var(--qh-line);
+}
+
+/* --- escribir ------------------------------------------------------------ */
+
+.orbe__escribir {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 6px;
+}
+
+.orbe__escribir input {
+  flex: 1;
+  min-width: 0;
+  background: var(--qh-black);
+  color: var(--qh-text);
+  border: 1px solid var(--qh-line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: 12.5px;
+}
+
+.orbe__escribir input:focus {
+  outline: none;
+  border-color: var(--qh-gold-dim);
+}
+
+.orbe__escribir button {
+  width: 34px;
+  padding: 0;
+  font-size: 14px;
+}
+
+/* --- marca de QuantumHive ------------------------------------------------- */
+
+.orbe__marca-pie {
+  flex: 0 0 auto;
+  margin: 0;
+  text-align: center;
+  font-size: 9.5px;
+  color: var(--qh-text-dim);
+}
+
+.orbe__marca-pie a {
+  color: var(--qh-gold-dim);
+  text-decoration: none;
+}
+
+.orbe__marca-pie a:hover {
+  text-decoration: underline;
+}
+
+/* --- celular ---------------------------------------------------------------
+   El iframe ya se achica desde loader.js (mide el viewport del sitio, que
+   desde adentro no se puede consultar). Aca se acomoda lo de adentro para
+   ese alto menor: el orbe mas chico, y todo un poco mas compacto para que
+   el registro de la conversacion siga siendo lo que mas espacio ocupa. */
+
+@media (max-width: 400px), (max-height: 560px) {
+  .orbe__esfera {
+    width: 88px;
+    height: 88px;
+    --qh-radio-vida: 46px;
+  }
+
+  .orbe__vida {
+    inset: -12px;
+  }
+
+  .orbe--abierto .orbe__esfera {
+    width: 38px;
+    height: 38px;
+  }
+
+  .orbe--avatar:not(.orbe--abierto) .orbe__esfera {
+    width: 140px;
+    height: 204px;
+  }
+
+  .orbe--avatar.orbe--abierto .orbe__esfera {
+    width: 50px;
+    height: 68px;
+  }
+
+  /* El cartel llegaba a medir casi lo mismo que el iframe entero y se
+     recortaba (va con nowrap a proposito, para que no se parta en dos). */
+  .orbe__invitacion {
+    font-size: 10px;
+    padding: 4px 9px;
+    letter-spacing: 0;
+  }
+
+  .orbe--abierto {
+    padding: 8px;
+    gap: 6px;
+    border-radius: 12px;
+  }
+
+  .orbe__cuerpo {
+    gap: 6px;
+  }
+
+  .orbe__titulo {
+    font-size: 12px;
+  }
+
+  /* Ocho chips en cuatro columnas quedan ilegibles en 320px de ancho. */
+  .orbe__voces-grilla {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .orbe__motor {
+    font-size: 10px;
+  }
+
+  .orbe__marca-pie {
+    font-size: 9px;
+  }
+
+  /* Las dos animaciones caras se apagan en el telefono, que es donde se
+     nota: el brillo del borde repinta un conic-gradient entero en cada
+     frame (animar una @property no se puede componer en la GPU), y el aro
+     de energia lleva un blur mientras gira. Las ondas y el latido del
+     logo se quedan: son transform/opacity, que si van por GPU. */
+  .orbe--abierto::before {
+    animation: none;
+  }
+
+  .orbe__vida-aro--energia {
+    animation: none;
+    filter: none;
+    opacity: 0.35;
+  }
+}
+
+/* El teclado del celular tapa media pantalla al escribir. Con el panel ya
+   corto, el registro se queda sin lugar; achicar el orbe y esconder el
+   cartel recupera esas filas. */
+@media (max-height: 420px) {
+  .orbe--abierto .orbe__esfera {
+    width: 30px;
+    height: 30px;
+  }
+
+  .orbe__marca-pie {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

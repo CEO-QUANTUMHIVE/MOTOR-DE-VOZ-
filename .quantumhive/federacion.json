@@ -1,0 +1,153 @@
+{
+  "dominus": "quantumcore",
+  "departamentos": [
+    {
+      "codigo": "asistente-trader",
+      "nombre": "Asistente Trader",
+      "estado": "activo"
+    },
+    {
+      "codigo": "biblioteca-inteligente",
+      "nombre": "Biblioteca Inteligente",
+      "estado": "activo"
+    },
+    {
+      "codigo": "catalogo-viivo",
+      "nombre": "Catálogo VIIVO",
+      "estado": "activo"
+    },
+    {
+      "codigo": "fabrica-de-agentes",
+      "nombre": "Fábrica de Agentes",
+      "estado": "activo"
+    },
+    {
+      "codigo": "fabrica-de-avatares",
+      "nombre": "Fábrica de Avatares",
+      "estado": "activo"
+    },
+    {
+      "codigo": "fabrica-de-webs",
+      "nombre": "Fabrica de Webs",
+      "estado": "activo"
+    },
+    {
+      "codigo": "inteligencia-comercial",
+      "nombre": "Inteligencia Comercial",
+      "estado": "activo"
+    },
+    {
+      "codigo": "inteligencia-interna",
+      "nombre": "Inteligencia Interna",
+      "estado": "activo"
+    },
+    {
+      "codigo": "motor-de-voz",
+      "nombre": "Motor de Voz",
+      "estado": "activo"
+    },
+    {
+      "codigo": "pagina-web-landing",
+      "nombre": "Página Web Landing QuantumHive",
+      "estado": "activo"
+    },
+    {
+      "codigo": "quantumcore",
+      "nombre": "QuantumCore",
+      "estado": "activo"
+    }
+  ],
+  "proveedores": [
+    {
+      "codigo": "aws-492660416863",
+      "nombre": "AWS · 492660416863",
+      "tipo": "nube",
+      "capacidades": [
+        "computo",
+        "bedrock-potencial"
+      ],
+      "estado": "pendiente",
+      "ultima_verificacion_en": null,
+      "credencial_alias": null,
+      "gestor": null,
+      "estado_credencial": null
+    },
+    {
+      "codigo": "aws-bedrock",
+      "nombre": "Amazon Bedrock vía AWS CLI",
+      "tipo": "ia",
+      "capacidades": [
+        "conversar",
+        "programar"
+      ],
+      "estado": "saludable",
+      "ultima_verificacion_en": "2026-08-27T00:18:22.353177+00:00",
+      "credencial_alias": null,
+      "gestor": null,
+      "estado_credencial": null
+    },
+    {
+      "codigo": "azure",
+      "nombre": "Azure OpenAI",
+      "tipo": "ia",
+      "capacidades": [
+        "conversar",
+        "programar"
+      ],
+      "estado": "saludable",
+      "ultima_verificacion_en": "2026-08-27T00:18:22.353177+00:00",
+      "credencial_alias": null,
+      "gestor": null,
+      "estado_credencial": null
+    },
+    {
+      "codigo": "groq",
+      "nombre": "Groq",
+      "tipo": "ia",
+      "capacidades": [
+        "conversar",
+        "programar"
+      ],
+      "estado": "saludable",
+      "ultima_verificacion_en": "2026-08-27T00:18:22.353177+00:00",
+      "credencial_alias": null,
+      "gestor": null,
+      "estado_credencial": null
+    },
+    {
+      "codigo": "oracle-vm-quantumhive",
+      "nombre": "Oracle Cloud VM «quantumhive» (Ampere A1, Always Free)",
+      "tipo": "nube",
+      "capacidades": [
+        "computo",
+        "entorno-dev",
+        "hosting-ceos"
+      ],
+      "estado": "pendiente",
+      "ultima_verificacion_en": null,
+      "credencial_alias": null,
+      "gestor": null,
+      "estado_credencial": null
+    }
+  ],
+  "referencias_locales": [
+    {
+      "proveedor": "azure-vps",
+      "alias": "azure-vps-api",
+      "estado": "configuracion_presente",
+      "requiere_prueba_real": true
+    },
+    {
+      "proveedor": "alibaba",
+      "alias": "alibaba-dashscope",
+      "estado": "configuracion_presente",
+      "requiere_prueba_real": true
+    },
+    {
+      "proveedor": "aws-bedrock",
+      "alias": "aws-cadena-identidad",
+      "estado": "configuracion_presente",
+      "requiere_prueba_real": true
+    }
+  ]
+}

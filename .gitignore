@@ -1,0 +1,98 @@
+# ─────────────────────────────────────────────────────────────
+# SECRETOS — el repositorio es PÚBLICO. Nada de esto sube nunca.
+# ─────────────────────────────────────────────────────────────
+apis/
+*.key
+*.pem
+.env
+.env.*
+!.env.example
+# Solo URLs publicas, ninguna clave. Versionado para que un build de
+# produccion no dependa de lo que tenga alguien en su shell.
+!frontend/panel/.env.production
+secrets/
+credentials/
+*api*.txt
+*token*.txt
+.mcp.json
+# Documentación personal usada para verificaciones externas: nunca al repo.
+DNI-*
+# binario de livekit-server.exe descargado a mano, no se versiona
+scripts/livekit/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+dist/
+build/
+
+# Node / frontend
+node_modules/
+.next/
+.turbo/
+frontend/**/dist/
+
+# Audio generado y cache
+*.wav
+*.mp3
+*.ogg
+*.opus
+cache/
+audio_cache/
+
+# Excepcion: los saludos pregrabados del selector de voces (3.5). No son
+# voces de nadie: son las voces stock de Google y OpenAI, generadas por
+# nosotros, y ya suenan publicamente en el widget — el repo no expone nada
+# que no este al aire. Versionarlas es a proposito: asi desplegar el widget
+# no depende de que quien lo haga tenga las claves de Vertex y de Azure.
+# La voz clonada del fundador (VOZ-003) y cualquier grabacion de una persona
+# real siguen afuera, sin excepcion.
+!frontend/widget/public/assets/muestras/*.mp3
+
+# Las muestras de voz NO se versionan. El repositorio es publico y un wav
+# limpio de la voz de una persona alcanza para clonarla. Cada quien deja
+# su propia grabacion local en tests/fixtures/; los smoke tests la saltean
+# si no esta. Ver §17 y §19 del contexto maestro: la clonacion de voz
+# requiere autorizacion explicita.
+tests/fixtures/*.wav
+clon de sergio/
+
+# Modelos y pesos
+*.pt
+*.pth
+*.safetensors
+*.onnx
+models/
+
+# Sistema operativo y editores
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+
+# Logs y temporales
+*.log
+logs/
+tmp/
+.coverage
+htmlcov/
+token.txt
+
+# Grafo de conocimiento: se regenera solo en cada commit, no se versiona.
+# Consultalo con `graphify query "..."` antes de releer el repo entero.
+graphify-out/
+
+# Copia local regenerable de la memoria viva de QuantumCore.
+MEMORIA.md
+
+# Estado local del CLI de Supabase, no del proyecto
+supabase/.temp/
