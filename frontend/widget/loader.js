@@ -15,6 +15,7 @@
   if (!actual) return;
 
   var origen = new URL(actual.src).origin;
+  var api = actual.getAttribute('data-api') || origen;
   var tenant = actual.getAttribute('data-tenant') || 'quantumhive';
   var logo = actual.getAttribute('data-logo') || '';
   var acento = actual.getAttribute('data-acento') || '';
@@ -30,7 +31,7 @@
     : tenant === 'quantumhive' ? 'avatar' : 'orbe';
   var avatarBase = actual.getAttribute('data-avatar-base') || '';
 
-  var params = new URLSearchParams({ api: origen, tenant: tenant });
+  var params = new URLSearchParams({ api: api, tenant: tenant });
   if (logo) params.set('logo', logo);
   if (acento) params.set('acento', acento);
   if (acento2) params.set('acento2', acento2);
