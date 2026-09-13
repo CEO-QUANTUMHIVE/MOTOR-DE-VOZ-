@@ -15,6 +15,13 @@ const parametros = new URLSearchParams(location.search);
 const API = parametros.get('api') || 'https://voz.quantumhive.com.ar';
 const TENANT = parametros.get('tenant') || 'quantumhive';
 const LOGO = parametros.get('logo') || '';
+const NIVEL_INICIAL = Number(parametros.get('nivel'));
+const NIVELES_VISIBLES = new Set(
+  (parametros.get('niveles') || '1,2,3')
+    .split(',')
+    .map(Number)
+    .filter((nivel) => [1, 2, 3].includes(nivel)),
+);
 const MODO_PEDIDO = parametros.get('modo');
 const MODO = MODO_PEDIDO
   ? MODO_PEDIDO === 'avatar' ? 'avatar' : 'orbe'
@@ -78,7 +85,7 @@ if (MODO === 'avatar') {
 if (LOGO) $('logo').src = LOGO;
 
 let sala = null;
-let nivelElegido = 1;
+let nivelElegido = [1, 2, 3].includes(NIVEL_INICIAL) ? NIVEL_INICIAL : 1;
 let niveles = [];
 let voces = [];
 let vozElegida = '';
@@ -149,6 +156,7 @@ function dibujarNiveles() {
   const cont = $('motores');
   cont.innerHTML = '';
   for (const n of niveles) {
+    if (!NIVELES_VISIBLES.has(n.nivel)) continue;
     const listo = NIVELES_LISTOS.has(n.nivel);
     const b = document.createElement('button');
     b.type = 'button';
@@ -256,6 +264,8 @@ function dibujarVoces() {
     }
     cont.append(grilla);
   }
+
+  if (!NIVELES_VISIBLES.has(1)) return;
 
   // La clonacion es el paso siguiente del embudo: el visitante que llega
   // hasta aca eligiendo voces es justo el que puede querer la suya.

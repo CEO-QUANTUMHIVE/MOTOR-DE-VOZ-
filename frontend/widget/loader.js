@@ -20,6 +20,8 @@
   var acento = actual.getAttribute('data-acento') || '';
   var acento2 = actual.getAttribute('data-acento-2') || '';
   var clonar = actual.getAttribute('data-clonar') || '';
+  var nivel = actual.getAttribute('data-nivel') || '';
+  var niveles = actual.getAttribute('data-niveles') || '';
   // La conversacion es siempre la misma. Esto solo elige su presencia
   // visual: el orbe original o un avatar de video configurado por tenant.
   var modoPedido = actual.getAttribute('data-modo');
@@ -33,6 +35,8 @@
   if (acento) params.set('acento', acento);
   if (acento2) params.set('acento2', acento2);
   if (clonar) params.set('clonar', clonar);
+  if (nivel === '1' || nivel === '2' || nivel === '3') params.set('nivel', nivel);
+  if (/^[1-3](,[1-3])*$/.test(niveles)) params.set('niveles', niveles);
   params.set('modo', modo);
   if (avatarBase) params.set('avatarBase', avatarBase);
 
